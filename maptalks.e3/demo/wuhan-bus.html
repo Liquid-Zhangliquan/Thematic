@@ -1,0 +1,131 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>maptalks.E3layer Demo: Bus lines</title>
+    <link type="text/css" rel="stylesheet" href="https://cdn.jsdelivr.net/npm/maptalks/dist/maptalks.css">
+    <style type="text/css">
+        body {
+            margin: 0;
+        }
+        #map {
+            width : 960px;
+            height: 600px;
+        }
+    </style>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/echarts/dist/echarts.min.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/maptalks/dist/maptalks.min.js"></script>
+    <script type="text/javascript" src="http://libs.baidu.com/jquery/1.7.2/jquery.min.js"></script>
+    <script type="text/javascript" src="../dist/maptalks.e3.js"></script>
+</head>
+<body>
+    <div id="map"></div>
+    <script>
+        //Original Example of Echarts 3
+        var map = new maptalks.Map("map", {
+            center: [12737884.305826,3546410.8003807],
+            zoom:11,
+            attributionControl: {
+                'content': '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, &copy; <a href="https://carto.com/attributions">CARTO</a>'
+            },
+            view:{
+                
+                    'projection': "IDENTITY",
+                    'resolutions': (function () {
+                        let res = Math.pow(2, 18);
+                        const resolutions = [];
+                        for (let i = 0; i < 20; i++) {
+                            resolutions[i] = res;
+                            res *= 0.5;
+                        }
+                        resolutions[0] = null;
+                        resolutions[1] = null;
+                        resolutions[2] = null;
+                        return resolutions;
+                    })(),
+                    'fullExtent': {
+                        'top': 33554432,
+                        'left': -33554432,
+                        'bottom': -33554432,
+                        'right': 33554432
+                    }
+                 
+            },
+            baseLayer: new maptalks.TileLayer('tile', {
+                tileSystem: [1, 1, 0, 0],
+                urlTemplate: 'http://api2.map.bdimg.com/customimage/tile?&x={x}&y={y}&z={z}&udt=20180314&scale=1&ak=1XjLLEhZhQNUzd93EjU5nOGQ&styles=t%3Awater%7Ce%3Aall%7Cc%3A%23044161%2Ct%3Aland%7Ce%3Aall%7Cc%3A%23091934%2Ct%3Aboundary%7Ce%3Ag%7Cc%3A%23064f85%2Ct%3Arailway%7Ce%3Aall%7Cv%3Aoff%2Ct%3Ahighway%7Ce%3Ag%7Cc%3A%23004981%2Ct%3Ahighway%7Ce%3Ag.f%7Cc%3A%23005b96%7Cl%3A1%2Ct%3Ahighway%7Ce%3Al%7Cv%3Aon%2Ct%3Aarterial%7Ce%3Ag%7Cc%3A%23004981%7Cl%3A-39%2Ct%3Aarterial%7Ce%3Ag.f%7Cc%3A%2300508b%2Ct%3Apoi%7Ce%3Aall%7Cv%3Aoff%2Ct%3Agreen%7Ce%3Aall%7Cv%3Aoff%7Cc%3A%23056197%2Ct%3Asubway%7Ce%3Aall%7Cv%3Aoff%2Ct%3Amanmade%7Ce%3Aall%7Cv%3Aoff%2Ct%3Alocal%7Ce%3Aall%7Cv%3Aoff%2Ct%3Aarterial%7Ce%3Al%7Cv%3Aoff%2Ct%3Aboundary%7Ce%3Ag.f%7Cc%3A%23029fd4%2Ct%3Abuilding%7Ce%3Aall%7Cc%3A%231a5787%2Ct%3Alabel%7Ce%3Aall%7Cv%3Aoff%2Ct%3Apoi%7Ce%3Al.t.f%7Cc%3A%23ffffff%2Ct%3Apoi%7Ce%3Al.t.s%7Cc%3A%231e1c1c%2Ct%3Aadministrative%7Ce%3Al%7Cv%3Aoff%2Ct%3Aroad%7Ce%3Al%7Cv%3Aoff',
+                subdomains: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+                
+            })
+        });
+        map.on('click',function(e){
+        
+        });
+         $.ajax({
+            type: "get",
+            url: 'wuhan-car.json',
+            dataType: 'json',
+            success: function (data) {
+                
+            },
+            error: function (rs) {
+            rs=rs.responseText.split("\n");
+            var hStep = 100 / (rs.length - 1);    
+            var data = [];
+            var timeData = [];
+            console.log(rs.length);
+            var maxLength = 0;
+            for (var i = 0; i < rs.length; i++) {
+                var item = rs[i].split(',');
+                var coordinates = [];
+                if (item.length > maxLength) {
+                    maxLength = item.length;
+                }
+                for (j = 0; j < item.length; j += 2) {
+                    coordinates.push([Number(item[j]), Number(item[j + 1])]);
+                    timeData.push({
+                        geometry: {
+                            type: 'Point',
+                            coordinates: [item[j], item[j + 1]]
+                        },
+                        count: 1,
+                        time: j
+                    });
+                }
+                data.push({
+                    'coords': coordinates,
+                    'lineStyle': {
+                        'normal': {
+                            'color': echarts.color.modifyHSL('#5A94DF', Math.round(hStep * i))
+                        }
+                    }
+                });
+            }
+            console.log(data);
+            var ecOption = {
+                'series': [{
+                    'type': 'lines',
+                    'polyline': true,
+                    'data': data,
+                    'lineStyle': {
+                        'normal': {
+                            'width': 0
+                        }
+                    },
+                    'effect': {
+                        'constantSpeed': 40,
+                        'show': true,
+                        'trailLength': 0.5,
+                        'symbolSize': 2.5
+                    },
+                    'zlevel': 1
+                }]
+            };
+            var e3Layer = new maptalks.E3Layer('e3', ecOption, { hideOnZooming: true, hideOnRotating: true, hideOnMoving: true })
+            .addTo(map);
+            }
+        });
+        
+     </script>
+</body>
+</html>
