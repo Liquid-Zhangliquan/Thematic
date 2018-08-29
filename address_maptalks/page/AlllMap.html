@@ -1,0 +1,101 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <title>添加在线地图示例</title>
+    <style type="text/css">
+    html,body{margin:0px;height:100%;width:100%}
+    #map{width:30%;height:100%;float:left;border: 1px solid;}
+    #MapBD{width:30%;height:100%;float:left;border: 1px solid;}
+    #MapGD{width:30%;height:100%;float:left;border: 1px solid;}
+    #MapQQ{width:30%;height:100%;float:left;border: 1px solid;}
+    #MapTDT{width:30%;height:100%;float:left;border: 1px solid;}
+    #MapGoogle{width:30%;height:100%;float:left;border: 1px solid;}
+    </style>
+    <link rel="stylesheet" href="https://maptalks.org/api/maptalks.css"/>
+    
+	 <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/maptalks@0.39.8/dist/maptalks.min.js"></script>
+</head>
+<body>
+    <div style="height:50%;width:100%">
+        <div id="map"></div>
+        <div id="MapBD">百度</div>
+        <div id="MapGD">高德</div>
+    </div>
+    <div style="height:50%;width:100%">
+        <div id="MapQQ">腾讯</div>
+        <div id="MapTDT">天地图</div>
+        <div id="MapGoogle">谷歌</div>
+    </div>
+    
+    <script>
+        var c = new maptalks.Coordinate(-0.113049, 51.49856);
+        var map = new maptalks.Map('map', {
+            center: c,
+            zoom: 14,
+            baseLayer: new maptalks.TileLayer('base', {
+                urlTemplate: 'http://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png',
+                subdomains: ["a", "b", "c", "d", "e"]
+            })
+        });
+        var MapBD = new maptalks.Map('MapBD', {
+            center: [114.36,30.66],
+            zoom: 9,
+            view: {
+                projection: 'baidu'
+            },
+            baseLayer: new maptalks.TileLayer('baidu', {
+                //http://api0.map.bdimg.com/customimage/tile?&x=787&y=296&z=12&udt=20170925&scale=1&ak=8d6c8b8f3749aed6b1aff3aad6f40e37&styles=t%3Awater%7Ce%3Aall%7Cc%3A%23ffdfa6%2Ct%3Aland%7Ce%3Aall%7Cc%3A%23b52127%2Ct%3Agreen%7Ce%3Aall%7Cc%3A%23b52127%2Ct%3Amanmade%7Ce%3Aall%7Cc%3A%23b52127%2Ct%3Abuilding%7Ce%3Aall%7Cc%3A%23b52127%2Ct%3Aboundary%7Ce%3Ag%7Cc%3A%23ffdfa6%2Ct%3Arailway%7Ce%3Ag%7Cc%3A%236a0d10%2Ct%3Ahighway%7Ce%3Ag.f%7Cc%3A%2374001b%7Cl%3A-10%2Ct%3Ahighway%7Ce%3Ag.s%7Cc%3A%23da3c3c%2Ct%3Aarterial%7Ce%3Ag.f%7Cc%3A%2374001b%2Ct%3Aarterial%7Ce%3Ag.s%7Cc%3A%23da3c3c%2Ct%3Alocal%7Ce%3Ag.f%7Cc%3A%23990c19%2Ct%3Alocal%7Ce%3Ag.s%7Cc%3A%23da3c3c%2Ct%3Asubway%7Ce%3Aall%7Ch%3A%23ff0000%2Ct%3Aall%7Ce%3Al.t.s%7Cc%3A%23ee8585%2Ct%3Aall%7Ce%3Al.t.f%7Cc%3A%23e3b9b9
+                //http://online{s}.map.bdimg.com/onlinelabel/?qt=tile&x={x}&y={y}&z={z}&styles=pl&scaler=1&p=1
+                //http://api1.map.bdimg.com/customimage/tile?&x={x}&y={y}&z={z}&udt=20170818&scale=1&ak=8d6c8b8f3749aed6b1aff3aad6f40e37
+                //'urlTemplate': 'http://api1.map.bdimg.com/customimage/tile?&x={x}&y={y}&z={z}&udt=20170818&scale=1&ak=8d6c8b8f3749aed6b1aff3aad6f40e37&styles=t%3Aland%7Ce%3Ag%7Cc%3A%23212121%2Ct%3Abuilding%7Ce%3Ag%7Cc%3A%232b2b2b%2Ct%3Ahighway%7Ce%3Aall%7Cl%3A-42%7Cs%3A-91%2Ct%3Aarterial%7Ce%3Ag%7Cl%3A-77%7Cs%3A-94%2Ct%3Agreen%7Ce%3Ag%7Cc%3A%231b1b1b%2Ct%3Awater%7Ce%3Ag%7Cc%3A%23181818%2Ct%3Asubway%7Ce%3Ag.s%7Cc%3A%23181818%2Ct%3Arailway%7Ce%3Ag%7Cl%3A-52%2Ct%3Aall%7Ce%3Al.t.s%7Cc%3A%23313131%2Ct%3Aall%7Ce%3Al.t.f%7Cc%3A%238b8787%2Ct%3Amanmade%7Ce%3Ag%7Cc%3A%231b1b1b%2Ct%3Alocal%7Ce%3Ag%7Cl%3A-75%7Cs%3A-91%2Ct%3Asubway%7Ce%3Ag%7Cl%3A-65%2Ct%3Arailway%7Ce%3Aall%7Cl%3A-40%2Ct%3Aboundary%7Ce%3Ag%7Cc%3A%238b8787%7Cl%3A-29%7Cw%3A1',
+                'urlTemplate': 'http://api0.map.bdimg.com/customimage/tile?&x={x}&y={y}&z={z}&udt=20170925&scale=1&ak=8d6c8b8f3749aed6b1aff3aad6f40e37&styles=t%3Awater%7Ce%3Aall%7Cc%3A%23ffdfa6%2Ct%3Aland%7Ce%3Aall%7Cc%3A%23b52127%2Ct%3Agreen%7Ce%3Aall%7Cc%3A%23b52127%2Ct%3Amanmade%7Ce%3Aall%7Cc%3A%23b52127%2Ct%3Abuilding%7Ce%3Aall%7Cc%3A%23b52127%2Ct%3Aboundary%7Ce%3Ag%7Cc%3A%23ffdfa6%2Ct%3Arailway%7Ce%3Ag%7Cc%3A%236a0d10%2Ct%3Ahighway%7Ce%3Ag.f%7Cc%3A%2374001b%7Cl%3A-10%2Ct%3Ahighway%7Ce%3Ag.s%7Cc%3A%23da3c3c%2Ct%3Aarterial%7Ce%3Ag.f%7Cc%3A%2374001b%2Ct%3Aarterial%7Ce%3Ag.s%7Cc%3A%23da3c3c%2Ct%3Alocal%7Ce%3Ag.f%7Cc%3A%23990c19%2Ct%3Alocal%7Ce%3Ag.s%7Cc%3A%23da3c3c%2Ct%3Asubway%7Ce%3Aall%7Ch%3A%23ff0000%2Ct%3Aall%7Ce%3Al.t.s%7Cc%3A%23ee8585%2Ct%3Aall%7Ce%3Al.t.f%7Cc%3A%23e3b9b9',
+                'subdomains': [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
+            })
+        });
+        var MapQQ = new maptalks.Map('MapQQ', {
+            center: [114.36, 30.66],
+            zoom: 9,
+            view: {
+                projection: 'baidu'
+            },
+            baseLayer: new maptalks.TileLayer('MapQQ', {
+                'urlTemplate': function (x, y, z) {
+                    return 'http://its.map.baidu.com:8002/traffic/TrafficTileService?label=web2D&v=081&level=' + z + '&y=' + y + '&x=' + x + '&time=' + new Date().getTime();
+                },
+                'subdomains': [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+            })
+        });
+        var MapGD = new maptalks.Map('MapGD', {
+            center: [114.36, 30.66],
+            zoom: 9,
+            baseLayer: new maptalks.TileLayer('MapGD', {
+                'urlTemplate': 'http://webst{s}.is.autonavi.com/appmaptile?style=6&x={x}&y={y}&z={z}',
+                'subdomains': ['01', '02', '03', '04'],
+				'renderer':'canvas'
+            })
+        });
+        var MapTDT = new maptalks.Map('MapTDT', {
+            center: [114.36, 30.66],
+            zoom: 9,
+            view: {
+                projection: 'EPSG:4326'
+            },
+            baseLayer: new maptalks.TileLayer('MapTDT', {
+                'tileSystem': [1, -1, -180, 90],
+                'urlTemplate': 'http://t{s}.tianditu.com/DataServer?T=vec_c&x={x}&y={y}&l={z}',
+                'subdomains': ['1', '2', '3', '4', '5'],
+            })
+        });
+        var MapGoogle = new maptalks.Map('MapGoogle', {
+            center: [114.36, 30.66],
+            zoom: 9,
+            baseLayer: new maptalks.TileLayer('MapGoogle', {
+                'urlTemplate': 'http://www.google.cn/maps/vt?pb=!1m5!1m4!1i{z}!2i{x}!3i{y}!4i256!2m3!1e0!2sm!3i342009817!3m9!2sen-US!3sCN!5e18!12m1!1e47!12m3!1e37!2m1!1ssmartmaps!4e0&token=32965',
+                'subdomains': ['01', '02', '03', '04'],
+            })
+        });
+    </script>
+
+</body>
+</html>

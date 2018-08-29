@@ -1,0 +1,49 @@
+﻿html,body{
+    margin:0px;
+    height:100%;
+    width:100%
+}
+    #map{
+        width:65%;
+        height:100%
+    }
+    .cluster_add{
+        position:absolute;
+        z-index: 999;
+        top:100px;
+        left:800px;
+        width:32px;
+        height:32px;
+        cursor:pointer;
+        background-image: url(../image/cluster_add.png)
+    }
+    .cluster_remove{
+        position:absolute;
+        z-index: 999;
+        top:100px;
+        left:800px;
+        width:32px;
+        height:32px;
+        cursor:pointer;
+        background-image: url(../image/cluster_remove.png)
+    }
+    .heat_add{
+        position:absolute;
+        z-index: 999;
+        top:150px;
+        left:800px;
+        width:32px;
+        height:32px;
+        cursor:pointer;
+        background-image: url(../image/heat_add.png)
+    }
+    .heat_remove{
+        position:absolute;
+        z-index: 999;
+        top:150px;
+        left:800px;
+        width:32px;
+        height:32px;
+        cursor:pointer;
+        background-image: url(../image/heat_remove.png)
+    }

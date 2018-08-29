@@ -1,0 +1,304 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>地图demo</title>
+    <link href="../css/index.css" rel="stylesheet" />
+    <link href="../plugin/maptalks/maptalks.css" rel="stylesheet" />
+    <script src="../plugin/Jquery/jquery-1.7.js"></script>
+    <script src="../plugin/maptalks/maptalks.js"></script>
+    <script src="../plugin/maptalks/maptalks.heatmap.js"></script>
+    <script src="../plugin/maptalks/maptalks.markercluster.js"></script>
+    <script src="../js/MaptalskCallJs.js"></script>
+    <script src="../js/TDT_school.js"></script>
+</head>
+
+<body>
+    <div id="map"></div>
+    <div id="cluster" class="cluster_remove"></div>
+    <div id="heatmap" class="heat_remove"></div>
+
+    <script>
+        //聚合控制
+        $('#cluster').unbind('click').bind('click', function () {
+            if ($('#cluster').hasClass('cluster_remove')) {
+                $('#cluster').removeClass('cluster_remove');
+                $('#cluster').addClass('cluster_add');
+                LayerCtrol('cluster', true);
+            } else {
+                $('#cluster').removeClass('cluster_add');
+                $('#cluster').addClass('cluster_remove');
+                LayerCtrol('cluster', false);
+            }
+        });
+        //热力图控制
+        $('#heatmap').unbind('click').bind('click', function () {
+            if ($('#heatmap').hasClass('heat_remove')) {
+                $('#heatmap').removeClass('heat_remove');
+                $('#heatmap').addClass('heat_add');
+                LayerCtrol('heat', true);
+            } else {
+                $('#heatmap').removeClass('heat_add');
+                $('#heatmap').addClass('heat_remove');
+                LayerCtrol('heat', false);
+            }
+        });
+        //循环测试数据
+        var JsonData=[];
+        function CreateData(){
+            for(var i=0;i<10000;i++){
+                JsonData.push([114.29351810722656+Math.random(),30.564308202441403+Math.random(),15]);
+            }
+        }
+        // //启动计时器
+        // console.time('timePlayer');
+        // //(写一些测试用代码)
+        // CreateData();
+        // //停止计时，输出时间
+        // console.timeEnd('timePlayer');
+        //定义瓦片服务
+        var tdtsl = "http://www.tiandituhubei.com:6080/arcgis/rest/services/IDT_L7_L20_HB/MapServer";
+        var tdtyx = "http://www.tiandituhubei.com:6080/arcgis/rest/services/IMG_ZY3_HB/MapServer";
+        var EsriStreet = "https://server.arcgisonline.com/arcgis/rest/services/ESRI_StreetMap_World_2D/MapServer";
+        var EsriImagery = "https://server.arcgisonline.com/arcgis/rest/services/ESRI_Imagery_World_2D/MapServer";
+        //加载底图
+        GeoMap.AddBaseLayer(EsriStreet, 'map', function () {
+            //初始化地图控件
+            var toolbar = new maptalks.control.Toolbar({
+                position: 'top-left',
+                items: [{
+                    item: "底图切换",
+                    children: [{
+                        item: "矢量平面",
+                        click: function () { changeBaseLayer(EsriStreet) }
+                    }, {
+                        item: "卫星影像",
+                        click: function () { changeBaseLayer(EsriImagery) }
+                    }]
+                }, {
+                    item: "底图缩放",
+                    children: [{
+                        item: "放大",
+                        click: function () { GeoMap.Map.zoomIn() }
+                    }, {
+                        item: "缩小",
+                        click: function () { GeoMap.Map.zoomOut() }
+                    }]
+                }, {
+                    item: "测量工具",
+                    children: [{
+                        item: "测距",
+                        click: function () { DistanceTool() }
+                    }, {
+                        item: "侧面",
+                        click: function () { AreaTool() }
+                    }]
+                }, {
+                    item: "底图打印",
+                    click: function () { PrintMap() }
+                }, {
+                    item: "清除",
+                    click: function () {
+                        if (MapToll) {
+                            MapToll.disable();
+                            MapToll.clear();
+                        }
+                    }
+                }]
+            }).addTo(GeoMap.Map);
+        });
+        //打印地图
+        function PrintMap() {
+            var myDate = new Date()
+            var time = myDate.getTime();
+            var imgname = "map" + time;
+            //打印地图
+            GeoMap.Map.toDataURL({
+                mimeType: "image/png",
+                save: true,
+                fileName: imgname
+            });
+        };
+        var MapToll = null;
+        //侧面工具
+        function AreaTool() {
+            if (MapToll) { MapToll.clear() }
+            MapToll = new maptalks.AreaTool({
+                'symbol': {
+                    'lineColor': '#1bbc9b',
+                    'lineWidth': 2,
+                    'polygonFill': '#fff',
+                    'polygonOpacity': 0.3
+                },
+                'vertexSymbol': {
+                    'markerType': 'ellipse',
+                    'markerFill': '#34495e',
+                    'markerLineColor': '#1bbc9b',
+                    'markerLineWidth': 3,
+                    'markerWidth': 10,
+                    'markerHeight': 10
+                },
+                'labelOptions': {
+                    'textSymbol': {
+                        'textFaceName': 'monospace',
+                        'textFill': '#fff',
+                        'textLineSpacing': 1,
+                        'textHorizontalAlignment': 'right',
+                        'textDx': 15
+                    },
+                    'boxStyle': {
+                        'padding': [6, 2],
+                        'symbol': {
+                            'markerType': 'square',
+                            'markerFill': '#000',
+                            'markerFillOpacity': 0.9,
+                            'markerLineColor': '#b4b3b3'
+                        }
+                    }
+                },
+                'clearButtonSymbol': [{
+                    'markerType': 'square',
+                    'markerFill': '#000',
+                    'markerLineColor': '#b4b3b3',
+                    'markerLineWidth': 2,
+                    'markerWidth': 15,
+                    'markerHeight': 15,
+                    'markerDx': 22
+                }, {
+                    'markerType': 'x',
+                    'markerWidth': 10,
+                    'markerHeight': 10,
+                    'markerLineColor': '#fff',
+                    'markerDx': 22
+                }],
+                language: 'zh-CN'
+            }).addTo(GeoMap.Map);
+        };
+        //测距工具
+        function DistanceTool() {
+            if (MapToll) { MapToll.clear() };
+            MapToll = new maptalks.DistanceTool({
+                'symbol': {
+                    'lineColor': '#34495e',
+                    'lineWidth': 2
+                },
+                'vertexSymbol': {
+                    'markerType': 'ellipse',
+                    'markerFill': '#1bbc9b',
+                    'markerLineColor': '#000',
+                    'markerLineWidth': 3,
+                    'markerWidth': 10,
+                    'markerHeight': 10
+                },
+
+                'labelOptions': {
+                    'textSymbol': {
+                        'textFaceName': 'monospace',
+                        'textFill': '#fff',
+                        'textLineSpacing': 1,
+                        'textHorizontalAlignment': 'right',
+                        'textDx': 15,
+                        'markerLineColor': '#b4b3b3',
+                        'markerFill': '#000'
+                    },
+                    'boxStyle': {
+                        'padding': [6, 2],
+                        'symbol': {
+                            'markerType': 'square',
+                            'markerFill': '#000',
+                            'markerFillOpacity': 0.9,
+                            'markerLineColor': '#b4b3b3'
+                        }
+                    }
+                },
+                'clearButtonSymbol': [{
+                    'markerType': 'square',
+                    'markerFill': '#000',
+                    'markerLineColor': '#b4b3b3',
+                    'markerLineWidth': 2,
+                    'markerWidth': 15,
+                    'markerHeight': 15,
+                    'markerDx': 20
+                }, {
+                    'markerType': 'x',
+                    'markerWidth': 10,
+                    'markerHeight': 10,
+                    'markerLineColor': '#fff',
+                    'markerDx': 20
+                }],
+                'language': 'zh-CN'
+
+            }).addTo(GeoMap.Map)
+        };
+        //切换底图
+        function changeBaseLayer(url) {
+            var urlobj = GeoMap.MapConfig[url];
+            if (urlobj) {
+                GeoMap.Map.setBaseLayer(urlobj.BaseLayer);
+                GeoMap.Map.setSpatialReference(urlobj.SpatialReference);
+            } else {
+                $.ajax({
+                    url: url + '?f=pjson', dataType: 'jsonp', success: function (conf) {
+                        var conf = GeoMap.GetTileLayerConfig(conf);
+                        var SpatialReference = conf.spatialReference;
+                        var BaseLayer = new maptalks.TileLayer('tile1', {
+                            renderer: 'canvas',//支持图片跨域
+                            tileSystem: conf.tileSystem,
+                            tileSize: conf.tileSize,
+                            urlTemplate: url + '/tile/{z}/{y}/{x}',
+                            repeatWorld: false,
+                            crossOrigin: true
+                            //cssFilter:"sepia(90%) invert(90%)"
+                        });
+                        var obj = {
+                            BaseLayer: BaseLayer,
+                            SpatialReference: SpatialReference
+                        }
+                        GeoMap.MapConfig[url] = obj;
+                        GeoMap.Map.setBaseLayer(BaseLayer);
+                        GeoMap.Map.setSpatialReference(SpatialReference);
+                    }, error: function (err) {
+
+                    }
+                })
+            }
+        };
+        //图层显影控制
+        function LayerCtrol(layerid, task) {
+            var layer = GeoMap.Map.getLayer(layerid);
+            if (!layer) {
+                switch (layerid) {
+                    case "cluster": layer = AddCluster(layerid, TDT_school.features); break;
+                    case "heat": layer = AddHeatMap(layerid, TDT_school.features); break;
+                }
+            }
+            task?layer.show():layer.hide();
+            layerid=="cluster"?GeoMap.Map._spreadoutLayer.clear():null;
+        };
+        //添加Marker
+
+        //加载聚合图
+        function AddCluster(layerid, data) {
+            var markers=[];
+            for(var i=0;i<data.length;i++){
+                markers.push(new maptalks.Marker([data[i].geometry.x,data[i].geometry.y]));
+            }
+            var layer = new maptalks.ClusterLayer(layerid, markers,{interact:true,markerFile:"../image/marker-blue.png"}).addTo(GeoMap.Map);
+            return layer;
+        };
+        //加载热力图
+        function AddHeatMap(layerid, data) {
+            var _data=[];
+            for(var i=0;i<data.length;i++){
+                _data.push([data[i].geometry.x,data[i].geometry.y,15])
+            }
+            //option{max:1,radius:25,blur:15}
+            var layer = new maptalks.HeatLayer(layerid, _data,{max:0.2,radius:25,blur:15}).addTo(GeoMap.Map);
+            return layer;
+        };
+    </script>
+</body>
+
+</html>

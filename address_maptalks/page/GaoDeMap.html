@@ -1,0 +1,167 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>添加在线地图示例</title>
+    <style type="text/css">
+        html,
+        body {
+            margin: 0px;
+            height: 100%;
+            width: 100%
+        }
+
+        #map1 {
+            width: 30%;
+            height: 100%;
+            float: left;
+            border: 1px solid;
+        }
+
+        #map2 {
+            width: 30%;
+            height: 100%;
+            float: left;
+            border: 1px solid;
+        }
+
+        #map3 {
+            width: 30%;
+            height: 100%;
+            float: left;
+            border: 1px solid;
+        }
+
+        #map4 {
+            width: 30%;
+            height: 100%;
+            float: left;
+            border: 1px solid;
+        }
+
+        #map5 {
+            width: 30%;
+            height: 100%;
+            float: left;
+            border: 1px solid;
+        }
+
+        #map6 {
+            width: 30%;
+            height: 100%;
+            float: left;
+            border: 1px solid;
+        }
+    </style>
+    <link rel="stylesheet" href="https://maptalks.org/api/maptalks.css" />
+
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/maptalks@0.39.8/dist/maptalks.min.js"></script>
+</head>
+
+<body>
+    <div style="height:50%;width:100%">
+        <div id="map1"></div>
+        <div id="map2"></div>
+        <div id="map3"></div>
+    </div>
+    <div style="height:50%;width:100%">
+        <div id="map4"></div>
+        <div id="map5"></div>
+        <div id="map6"></div>
+    </div>
+
+    <script>
+        //{s} ['01','02','03','04'] 栈位符
+        //为矢量图（含路网、含注记）
+        var url1 = 'http://wprd{s}.is.autonavi.com/appmaptile?x={x}&y={y}&z={z}&lang=zh_cn&size=1&scl=1&style=7';
+        //为矢量图（含路网，不含注记）
+        var url2 = 'http://wprd{s}.is.autonavi.com/appmaptile?x={x}&y={y}&z={z}&lang=zh_cn&size=1&scl=2&style=7';
+        //为影像底图（不含路网，不含注记）
+        var url3 = 'http://wprd{s}.is.autonavi.com/appmaptile?x={x}&y={y}&z={z}&lang=zh_cn&size=1&scl=1&style=6';
+        //为影像底图（不含路网、不含注记）
+        var url4 = 'http://wprd{s}.is.autonavi.com/appmaptile?x={x}&y={y}&z={z}&lang=zh_cn&size=1&scl=2&style=6';
+        //为影像路图（含路网，含注记）
+        var url5 = 'http://wprd{s}.is.autonavi.com/appmaptile?x={x}&y={y}&z={z}&lang=zh_cn&size=1&scl=1&style=8';
+        //为影像路网（含路网，不含注记）
+        var url6 = 'http://wprd{s}.is.autonavi.com/appmaptile?x={x}&y={y}&z={z}&lang=zh_cn&size=1&scl=2&style=8';
+
+        //http://webst{s}.is.autonavi.com/appmaptile?style=6&x={x}&y={y}&z={z} 为影像底图（不含路网，不含注记）
+
+        //http://webst{s}.is.autonavi.com/appmaptile?style=7&x={x}&y={y}&z={z} 为矢量地图（含路网，含注记）
+
+        //http://webst{s}.is.autonavi.com/appmaptile?style=8&x={x}&y={y}&z={z} 为影像路网（含路网，含注记）
+
+
+
+
+
+
+
+        
+        var Map1 = new maptalks.Map('map1', {
+            center: [114.36, 30.66],
+            zoom: 9,
+            baseLayer: new maptalks.TileLayer('1', {
+                'urlTemplate': url1,
+                'subdomains': ['01', '02', '03', '04'],
+                'renderer': 'canvas',
+                //'cssFilter': "sepia(90%) invert(90%)"
+            })
+        });
+        var Map2 = new maptalks.Map('map2', {
+            center: [114.36, 30.66],
+            zoom: 9,
+            baseLayer: new maptalks.TileLayer('2', {
+                'urlTemplate': url2,
+                'subdomains': ['01', '02', '03', '04'],
+                'renderer': 'canvas',
+                'cssFilter': "sepia(90%) invert(90%)"
+            })
+        });
+        var Map3 = new maptalks.Map('map3', {
+            center: [114.36, 30.66],
+            zoom: 9,
+            baseLayer: new maptalks.TileLayer('3', {
+                'urlTemplate': url3,
+                'subdomains': ['01', '02', '03', '04'],
+                'renderer': 'canvas',
+                'cssFilter': "sepia(80%) invert(80%)"
+            })
+        });
+        var Map4 = new maptalks.Map('map4', {
+            center: [114.36, 30.66],
+            zoom: 9,
+            baseLayer: new maptalks.TileLayer('4', {
+                'urlTemplate': url4,
+                'subdomains': ['01', '02', '03', '04'],
+                'renderer': 'canvas',
+                //'cssFilter': "sepia(70%) invert(70%)"
+            })
+        });
+        var Map5 = new maptalks.Map('map5', {
+            center: [114.36, 30.66],
+            zoom: 9,
+            baseLayer: new maptalks.TileLayer('5', {
+                'urlTemplate': url5,
+                'subdomains': ['01', '02', '03', '04'],
+                'renderer': 'canvas',
+                'cssFilter': "grayscale(60%) contrast(50%)"
+            })
+        });
+        var Map6 = new maptalks.Map('map6', {
+            center: [114.36, 30.66],
+            zoom: 9,
+            baseLayer: new maptalks.TileLayer('6', {
+                'urlTemplate': url6,
+                'subdomains': ['01', '02', '03', '04'],
+                'renderer': 'canvas',
+                'cssFilter': "sepia(10%) brightness(60%) invert(10%)"
+            })
+        });
+        
+    </script>
+
+</body>
+
+</html>
