@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="maptalks.css">
+  <style type="text/css">
+    html,
+    body {
+      margin: 0px;
+      height: 100%;
+    }
+
+    .heading {
+      background-color: #34495e;
+      color: #fff;
+      padding: 8px 8px;
+      font: 24px sans-serif;
+    }
+  </style>
+  <title>Buildings Extrusion</title>
+</head>
+
+<body scroll="no">
+  <div id="mapObj" style="width:100%;height:100%;">Loading data.....
+    <!-- <br> It's an 1M(gzipped) file with 25842 buildings, please be patient.</div> -->
+  <script type="text/javascript" src="http://libs.baidu.com/jquery/1.7.2/jquery.min.js"></script>
+  <script type="text/javascript" src="maptalks.min.js"></script>
+  <script type="text/javascript" src="maptalks.webgl.min.js"></script>
+  <script type="text/javascript" src="wuhan_buildings.js"></script>
+  <script type="text/javascript">
+    var map = new maptalks.Map('mapObj',
+      {
+        center: [114.40471458305501,30.458549993186722],
+        zoom: 16,//初始化显示层级 可自己更改 
+        pitch: 52,
+        baseLayer: new maptalks.TileLayer('base', {
+          urlTemplate: 'http://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png',
+          subdomains: ['a', 'b', 'c', 'd'],
+          attribution: '&copy; <a href="http://osm.org">OpenStreetMap</a> contributors, &copy; <a href="https://carto.com/">CARTO</a>'
+        })
+      });
+    map.on('click', function (e) {
+
+    })
+
+
+
+    new maptalks.control.Attribution({
+      position: 'top-right',
+      content: '<div class="heading">417 buildings in Wuhan Optics Valley</div>'
+    }).addTo(map);
+
+    var symbol = {
+      'polygonOpacity': 1,
+      'polygonFill': 'rgba(0, 255, 0, 1)'
+    };
+
+    wh_building.features.forEach(function (f) {
+      var height = 20;
+      var type = f.properties.type;
+      if (type === 'ruins') {
+        height = 5;
+      } else if (type === 'storage_tank') {
+        height = 50;
+      } else if (type === 'hospital') {
+        height = 80;
+      } else if (type === 'place_of_worship') {
+        height = 120;
+      } else if (type === 'garage') {
+        height = 60;
+      }
+      f.properties.height = height;
+    });
+
+    var buildingLayer = new maptalks.ExtrudePolygonLayer('buildings', wh_building.features, {
+      'forceRenderOnMoving': true,
+      'ambientLight': [0, 0, 0]
+    })
+      .setStyle([
+        {
+          filter: ['==', 'type', 'ruins'],
+          symbol: { 'polygonFill': '#bbb' }
+        },
+        {
+          filter: ['==', 'type', 'storage_tank'],
+          symbol: { 'polygonFill': 'rgba(0, 255, 0, 1)' }
+        },
+        {
+          filter: ['==', 'type', 'hospital'],
+          symbol: { 'polygonFill': 'rgba(255, 255, 0, 1)' }
+        },
+        {
+          filter: ['==', 'type', 'place_of_worship'],
+          symbol: { 'polygonFill': 'rgba(0, 255, 255, 1)' }
+        },
+        {
+          filter: ['==', 'type', 'garage'],
+          symbol: { 'polygonFill': 'rgba(0, 255, 255, 1)' }
+        },
+        {
+          filter: true,
+          symbol: { 'polygonFill': '#bbb' }
+        }
+      ])
+      .addTo(map);
+
+  </script>
+</body>
+
+</html>
