@@ -1,0 +1,114 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>3DheatMap</title>
+    <style type="text/css">
+        body {
+            overflow: hidden;
+            margin: 0;
+        }
+    </style>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/three.js/96/three.min.js"></script>
+    <script src="https://threejs.org/examples/js/controls/OrbitControls.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.7.2/dat.gui.min.js"></script>
+
+</head>
+
+<body>
+    <script>
+        var heatVertex = `
+    uniform sampler2D heightMap;
+    uniform float heightRatio;
+    varying vec2 vUv;
+    varying float hValue;
+    void main() {
+      vUv = uv;
+      vec3 pos = position;
+      hValue = texture2D(heightMap, vUv).g;
+      pos.y = hValue * heightRatio;
+      gl_Position = projectionMatrix * modelViewMatrix * vec4(pos,1.0);
+    }
+  `;
+
+        var heatFragment = `
+    varying float hValue;
+    
+    // honestly stolen from https://www.shadertoy.com/view/4dsSzr
+    vec3 heatmapGradient(float t) {
+      return clamp((pow(t, 1.5) * 0.8 + 0.2) * vec3(smoothstep(0.0, 0.35, t) + t * 0.5, smoothstep(0.5, 1.0, t), max(1.0 - t * 1.7, t * 7.0 - 6.0)), 0.0, 1.0);
+    }
+
+    void main() {
+      float v = abs(hValue - 1.);
+      gl_FragColor = vec4(heatmapGradient(hValue), 1. - v * v) ;
+    }
+  `;
+
+        var heightMap = createHeightMap();
+        console.log(heightMap);
+        function createHeightMap() {
+            var canvas = document.createElement("canvas");
+            canvas.width = 256;
+            canvas.height = 256;
+            var ctx = canvas.getContext("2d");
+            ctx.fillStyle = "black";
+            ctx.fillRect(0, 0, 256, 256);
+            for (let i = 0; i < 1000; i++) {
+                var x = Math.floor(Math.random() * 255);
+                var y = Math.floor(Math.random() * 255);
+                var radius = 50;
+                var grd = ctx.createRadialGradient(x, y, 1, x, y, radius);
+                var h8 = Math.floor(Math.random() * 255);
+                grd.addColorStop(0, "rgb(" + h8 + "," + h8 + "," + h8 + ")");
+                grd.addColorStop(1, "transparent");
+                ctx.fillStyle = grd;
+                ctx.fillRect(0, 0, 256, 256);
+            }
+            return new THREE.CanvasTexture(canvas);
+        }
+    </script>
+    <script>
+        window.onload = function () {
+            var scene = new THREE.Scene();
+            var camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 1, 1000);
+            camera.position.set(21, 34, 55);
+            var renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            document.body.appendChild(renderer.domElement);
+
+            var controls = new THREE.OrbitControls(camera, renderer.domElement);
+
+            scene.add(new THREE.GridHelper(50, 25, 0x000040, 0x000040));
+
+            var planeGeometry = new THREE.PlaneBufferGeometry(50, 50, 1000, 1000);
+            planeGeometry.rotateX(-Math.PI * 0.5);
+
+            var heat = new THREE.Mesh(planeGeometry, new THREE.ShaderMaterial({
+                uniforms: {
+                    heightMap: { value: heightMap },
+                    heightRatio: { value: 10 }
+                },
+                vertexShader: heatVertex,
+                fragmentShader: heatFragment,
+                transparent: true
+            }));
+
+            scene.add(heat);
+
+            var gui = new dat.GUI();
+            gui.add(heat.material.uniforms.heightRatio, "value", 1, 15).name("heightRatio");
+
+            render();
+            function render() {
+                requestAnimationFrame(render);
+                renderer.render(scene, camera);
+            }
+        }
+
+
+    </script>
+</body>
+
+</html>
