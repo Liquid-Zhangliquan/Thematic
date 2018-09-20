@@ -20265,7 +20265,8 @@ var options$27 = {
     'position': 'bottom-left',
     'maxWidth': 100,
     'metric': true,
-    'imperial': false
+    'imperial': false,
+    'containerClass': null
 };
 
 var Scale = function (_Control) {
@@ -20278,7 +20279,7 @@ var Scale = function (_Control) {
 
     Scale.prototype.buildOn = function buildOn(map) {
         this._map = map;
-        this._scaleContainer = createEl('div');
+        this._scaleContainer = createEl('div', this.options['containerClass']);
         this._addScales();
         map.on('zoomend', this._update, this);
         if (this._map._loaded) {
@@ -20292,38 +20293,14 @@ var Scale = function (_Control) {
     };
 
     Scale.prototype._addScales = function _addScales() {
-        let css = "";
-        const ScaleCss = {
-            "border": "2px solid #000000",
-            "border-top": "none",
-            "line-height": "1.1",
-            "padding": "2px 5px 1px",
-            "color": "#000000",
-            "font-size": "11px",
-            "text-align": "center",
-            "white-space": "nowrap",
-            "overflow": "hidden",
-            "-moz-box-sizing": "content-box",
-            "box-sizing": "content-box",
-            "background": "rgba(255, 255, 255, 0)"
-        }
-        if (!this.options['ScaleCss']) {
-            for (const p in ScaleCss) {
-                css += p + ":" + ScaleCss[p] + ";"
-            }
-        } else {
-            const _opScaleCss = this.options['ScaleCss'];
-            const _ScaleCss = {}
-            for (const p in ScaleCss) {
-                _ScaleCss[p] = _opScaleCss[p] || ScaleCss[p];
-                css += p + ":" + _ScaleCss[p] + ";"
-            }
-        }
+        let css = 'border: 2px solid #000000;border-top: none;line-height: 1.1;padding: 2px 5px 1px;' +
+        'color: #000000;font-size: 11px;text-align:center;white-space: nowrap;overflow: hidden' +
+        ';-moz-box-sizing: content-box;box-sizing: content-box;background: #fff; background: rgba(255, 255, 255, 0);';
         if (this.options['metric']) {
-            this._mScale = createElOn('div', css, this._scaleContainer);
+            this._mScale = createElOn('div', this.options['containerClass'] ? null : css, this._scaleContainer);
         }
         if (this.options['imperial']) {
-            this._iScale = createElOn('div', css, this._scaleContainer);
+            this._iScale = createElOn('div', this.options['containerClass'] ? null : css, this._scaleContainer);
         }
     };
 
