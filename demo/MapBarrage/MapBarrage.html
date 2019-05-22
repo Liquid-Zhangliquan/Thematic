@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MapBarrage</title>
+<style type="text/css">
+  html,
+  body {
+    margin: 0px;
+    height: 100%;
+    width: 100%;
+    position: relative;
+  }
+
+  .container {
+    float: left;
+    width: 100%;
+    height: 100%
+  }
+
+  .pane {
+    background: #34495e;
+    line-height: 28px;
+    color: #fff;
+    z-index: 10;
+    position: absolute;
+    top: 20px;
+    right: 20px
+  }
+
+  .pane a {
+    display: block;
+    color: #fff;
+    text-align: left;
+    padding: 0 10px;
+    min-width: 28px;
+    min-height: 28px;
+    float: left
+  }
+
+  .editbox {
+    position: absolute;
+    bottom: 20px;
+    right: 20px;
+    width: 150px;
+    height: 230px;
+    background: #1eaf88;
+  }
+
+  .item-title {
+    float: left;
+    width: 130px;
+    height: 30px;
+    line-height: 30px;
+    padding: 0 10px;
+  }
+
+  .item-textarea {
+    float: left;
+    width: 130px;
+    height: 90px;
+    line-height: 30px;
+    padding: 0 10px;
+  }
+
+  .item-input {
+    float: left;
+    width: 130px;
+    height: 30px;
+    line-height: 30px;
+    padding: 0 10px;
+  }
+
+  textarea {
+    width: 100%;
+    height: 90px;
+    padding: 0px;
+  }
+
+  input {
+    width: 100%;
+    padding: 0px;
+  }
+
+  .item-btnbox {
+    float: left;
+    cursor: pointer;
+    width: 130px;
+    height: 30px;
+    line-height: 30px;
+    padding: 10px 10px;
+    text-align: center;
+  }
+
+  .item-btn {
+    background: #1183fbb5;
+    text-align: center;
+    border: 1px solid #cdcdcd;
+  }
+</style>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/maptalks/dist/maptalks.css">
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/maptalks/dist/maptalks.min.js"></script>
+<script src='https://npmcdn.com/@turf/turf/turf.min.js'></script>
+<script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
+
+<body>
+
+  <div id="map" class="container"></div>
+  <div class="editbox" id="e">
+    <div class="item-title">弹幕内容:</div>
+    <div class="item-textarea">
+      <textarea rows="3" cols="20" id="barrage_name"></textarea>
+    </div>
+
+    <div class="item-title">弹幕颜色:</div>
+    <div class="item-input">
+      <input type="color" id="barrage_color">
+    </div>
+    <div class="item-btnbox">
+      <div class="item-btn">发送弹幕</div>
+    </div>
+  </div>
+  <script>
+    //持续动画
+    //兼容性处理
+    window.requestAnimFrame = (function () {
+      return window.requestAnimationFrame ||
+        window.webkitRequestAnimationFrame ||
+        window.mozRequestAnimationFrame ||
+        function (callback) {
+          window.setTimeout(callback, 1000 / 60);
+        };
+    })();
+
+    var e = document.getElementById("e");
+    var flag = true;
+    var right = 0;
+
+    function render() {
+      right == 0 ? flag = true : right == 100 ? flag = false : '';
+      flag ? e.style.right = ` ${right++}px` :
+        e.style.right = ` ${right--}px`;
+    }
+
+    (function animloop() {
+      render();
+      requestAnimFrame(animloop);
+    })();
+
+
+
+
+    var barrage_name = '';
+    var barrage_color = '';
+    $('.item-btn').unbind('click').bind('click', function () {
+      barrage_name = $('#barrage_name').val();
+      barrage_color = $('#barrage_color').val();
+      AddBarrageItem(barrage_name, barrage_color);
+    });
+    var map = new maptalks.Map('map', {
+      center: [-0.113049, 51.498568],
+      zoom: 14,
+      baseLayer: new maptalks.TileLayer('base', {
+        urlTemplate: 'http://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png',
+        subdomains: ['a', 'b', 'c', 'd'],
+        attribution: '&copy; <a href="http://osm.org">OpenStreetMap</a> contributors, &copy; <a href="https://carto.com/">CARTO</a>'
+      })
+    });
+
+    //掩膜层
+    var masklayer = new maptalks.VectorLayer('masklayer', { forceRenderOnMoving: true }).addTo(map);
+    var BarrageBox = map.getExtent();
+    var mask = new maptalks.Polygon([
+      { x: BarrageBox.xmin + 0.015, y: BarrageBox.ymin + 0.03 },
+      { x: BarrageBox.xmax - 0.015, y: BarrageBox.ymin + 0.03 },
+      { x: BarrageBox.xmax - 0.015, y: BarrageBox.ymax },
+      { x: BarrageBox.xmin + 0.015, y: BarrageBox.ymax }
+    ]);
+    masklayer.setMask(mask);
+
+    //弹幕层
+    var barragelayer = new maptalks.VectorLayer('barragelayer', { forceRenderOnMoving: true }).addTo(map);
+    function AddBarrageItem(name, color) {
+      var box = mask.getExtent();
+      var y = Math.random() * (box.ymax - box.ymin) + box.ymin;
+      var start = {
+        x: box.xmax,
+        y: y,
+      }
+      var end = {
+        x: box.xmin,
+        y: y,
+      }
+      var BarrageItem = new maptalks.Marker(start, {
+        'properties': {
+          'name': name
+        },
+        'symbol': {
+          'textFaceName': 'sans-serif',
+          'textName': '{name}',          //value from name in geometry's properties
+          'textWeight': 'normal', //'bold', 'bolder'
+          'textStyle': 'normal', //'italic', 'oblique'
+          'textSize': 40,
+          'textFont': null,     //same as CanvasRenderingContext2D.font, override textName, textWeight and textStyle
+          'textFill': color,
+          'textOpacity': 1,
+          'textHaloFill': '#fff',
+          'textHaloRadius': 5,
+          'textWrapWidth': null,
+          'textWrapCharacter': '\n',
+          'textLineSpacing': 0,
+          'textDx': 0,
+          'textDy': 0,
+          'textHorizontalAlignment': 'middle', //left | middle | right | auto
+          'textVerticalAlignment': 'middle',   // top | middle | bottom | auto
+          'textAlign': 'center' //left | right | center | auto
+        }
+      }).addTo(barragelayer);
+      var offset = {
+        x: end.x - start.x,
+        y: 0
+      }
+      BarrageItem.setCoordinates(start);
+      BarrageItem.bringToFront().animate({
+        //animation translate distance
+        translate: [offset['x'], offset['y']]
+      }, {
+          duration: 3500
+        }, function (frame) {
+          if (frame.state.playState === 'finished') {
+            console.log('animation finished');
+            barragelayer.removeGeometry(BarrageItem);
+          }
+        });
+    }
+
+    map.on('click', function (e) {
+      console.log(e.coordinate);
+    })
+    //监听视图改变事件，同步mask位置
+    map.on('viewchange', function (e) {
+      console.log(map.getExtent());
+      BarrageBox= map.getExtent();
+      mask.setCoordinates([
+      { x: BarrageBox.xmin + 0.015, y: BarrageBox.ymin + 0.03 },
+      { x: BarrageBox.xmax - 0.015, y: BarrageBox.ymin + 0.03 },
+      { x: BarrageBox.xmax - 0.015, y: BarrageBox.ymax },
+      { x: BarrageBox.xmin + 0.015, y: BarrageBox.ymax }
+    ])
+    })
+
+
+  </script>
+</body>
+
+</html>
