@@ -14,6 +14,6 @@
 
 ## maptalks.odline
 
-* [人口迁徙/案件派发](https://liquid-zhangliquan.github.io/Thematic/maptal.odline/index.html)
+* [人口迁徙/案件派发](https://liquid-zhangliquan.github.io/Thematic/maptalks.odline/index.html)
 
 
