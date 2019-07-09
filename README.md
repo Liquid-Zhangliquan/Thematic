@@ -16,4 +16,8 @@
 
 * [人口迁徙/案件派发](https://liquid-zhangliquan.github.io/Thematic/maptalks.odline/index.html)
 
+## maptalks.heatmap/clusterlayer
+
+* [热力图/聚合图](https://liquid-zhangliquan.github.io/Thematic/address_maptalks/index.html)
+
 
