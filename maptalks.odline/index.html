@@ -138,6 +138,7 @@
                         'textSize': 16,
                         'textFill': '#ffffff',
                         'textOpacity': 1,
+                        'textDy': 5
                     },
                     'properties': {
                         'value': geoCoordMap[i].cou
@@ -250,10 +251,10 @@
                 var togeo = layer.getGeometryById(toid);
                 var _value = togeo.getProperties().value;
                 _value = Number(_value) + Number(num);
-                togeo.setProperties({ name: _value });
+                togeo.setProperties({ value: _value });
                 caseUpdateAnim(toCord, num, toName + "人口总数+");
                 togeo.updateSymbol({
-                    textName: '{name}'
+                    textName: '{value}'
                 })
                 var str = toName + " " + "人口总数：" + _value;
                 var tooltip = new maptalks.ui.ToolTip(str).addTo(togeo);
